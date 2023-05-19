@@ -9,22 +9,22 @@ def main():
     titel("Welcome!")
 
     file_name = file_select()
-    #Таблиця для відступів від початку текстового блоку (адресів)
+    #Table for indentation from the beginning of a text block (address table)
     addresses = []
 
-    #Відкриваємо файл
+    #Open a file for reading in binary format
     file = open(file_name, 'rb')
 
-    # Читаємо довжину текстового блоку
+    #Read the length of the text block (2 bytes)
     file.seek(22)
     u = file.read(2)
     text_block_len_HEX = hex(u[1])[2:] + hex(u[0])[2:]
     text_block_len_DEC = int(text_block_len_HEX, 16)
 
-    #Стаємо на початок текстового блоку
+    #Go to the beginning of the text block
     file.seek(34)
 
-    #Починаємо шукати адреси (Відступ спочатку в десяткових числах)
+    #Start looking for addresses (length in bytes of each text block)
     offset = 0
     for i in range(int(text_block_len_DEC/2)):
         step = file.read(2)
@@ -32,7 +32,7 @@ def main():
         if hex(step[0])[2:] == '0':
             addresses.append([offset, None])
 
-    #Конвертування десяткових чисел в шістнадцяткові
+    #Convert decimal numbers to hexadecimal, also write to addresses
     for address in addresses:
         if address[0] < 256:
             address[1] = hex(address[0])[2:] + "00"
@@ -41,36 +41,34 @@ def main():
         elif address[0] < 65536:
             address[1] = hex(address[0])[4:] + hex(address[0])[2:4]
 
-    #Кількість текстових блоків
+    #Number of text blocks
     text_block_num = len(addresses)
 
     view_info(text_block_num, text_block_len_DEC, text_block_len_HEX)
 
-    #Закриваєм проаналізований файл
+    #Close the analysed file
     file.close()
 
-    #Користувач вносить зміни в файл
-        #TODO
+    #If the user wants, we display the contents of the text block and write it to the file
     if input("View text block content? y/n: ") == 'y':
         file_view(file_name, addresses)
 
+    #The user makes changes to the file
     os.system('cls')
     art.aprint("seal")
     print(Fore.GREEN + "\nYou can now make changes to the file. After making changes, enter ok")
     while i != 'ok':
         i = input()
 
-    #Відкриваємо файл для повторного аналізу
+    #Open the modified file for re-analysis
     file = open('strings_EN.dat.game.bin', 'rb')
 
-    #Стаємо на початок текстового блоку
+    #Go to the beginning of the text block
     file.seek(34)
 
     updated_addresses = []
 
-    #Аналізуємо файл
-
-    #Обнуляємо offset
+    #Reset offset
     offset = 0
     count = 0
 
@@ -80,10 +78,8 @@ def main():
         if hex(step[0])[2:] == '0':
             count += 1
             updated_addresses.append([offset, None])
-    # print("")
-    # print("Кількість текстових блоків в оновленому файлі", count)
 
-    #Конвертування десяткових чисел в шістнадцяткові для нових текстових блоків
+    #Convert decimal numbers to hexadecimal for new text blocks
     for address in updated_addresses:
         if address[0] < 256:
             address[1] = hex(address[0])[2:] + "00"
@@ -92,42 +88,33 @@ def main():
         elif address[0] < 65536:
             address[1] = hex(address[0])[4:] + hex(address[0])[2:4]
 
-    #Нова довжина текстового блоку в десяткових числах
     new_text_block_len_DEC = offset
-    # print("Довжина текстового блоку в оновленому файлі DEC", new_text_block_len_DEC)
-    #Нова довжина текстового блоку в шістнадцяткових числах
     new_text_block_len_HEX = hex(offset)[2:4] + hex(offset)[4:]
-    # print("Довжина текстового блоку в оновленому файлі HEX", new_text_block_len_HEX)
 
+    #View updated information
     view_updated_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC)
 
-    #Читаєм файл повністю в пам'ять, для подальшої зміни
+    #Read the entire file into memory for further modification
     file.seek(0)
     file_snapshot = list(file.read())
 
-    #Записуємо нову довжину текстового блоку
+    #Write down the new length of the text block
     file_snapshot[22] = int(hex(offset)[4:],16)
     file_snapshot[23] = int(hex(offset)[2:4],16)
 
 
-    #Стаємо на початок блоку кординат
+    #Stand at the beginning of the cordinate block
     pointer = 33 + 12 + new_text_block_len_DEC
 
-    #Починаємо записувати нові координати
+    #Start recording new coordinates
     for i in range(text_block_num - 1):
-        # print(file_snapshot[pointer+1], file_snapshot[pointer+2])
         file_snapshot[pointer + 1] = int(updated_addresses[i][1][:2], 16)
         file_snapshot[pointer + 2] = int(updated_addresses[i][1][2:], 16)
-        # print(file_snapshot[pointer+1], file_snapshot[pointer+2])
         pointer += 8
 
 
-    #Записуємо масив з оновленими данними в файл
+    #Write an array with updated data to the file
     file = open('strings1_EN.dat.game.bin', 'wb')
-    file1 = open('text.txt', 'w')
-
-    for i in range(text_block_num):
-        file1.write(str(addresses[i]) + '\t' +str(updated_addresses[i]) + '\t' + str(updated_addresses[i][0] - addresses[i][0]) + '\n')
 
     u = None
     for i in range(504, 509):
@@ -158,10 +145,10 @@ def main():
     while i != 'q':
         i = input()
 
+#Displaying the contents of a text block in the console and writing to a file
 def file_view(file_name, addresses):
     file = open(file_name, 'r', encoding='ISO-8859-1')
     text_file = open("file_txt.txt", 'w', encoding="ISO-8859-1")
-    #Стаємо на початок текстового блоку
 
     file.seek(34)
 
@@ -178,6 +165,7 @@ def file_view(file_name, addresses):
 
     input("\nA file" + Fore.GREEN + Style.BRIGHT + " (file_txt.txt) " + Style.RESET_ALL + "was created with the contents of the text block.\nTo continue, enter any character: ")
 
+#Display information about the updated file
 def view_updated_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC):
     os.system('cls')
     titel("Great!")
@@ -190,6 +178,7 @@ def view_updated_info(count, new_text_block_len_DEC, new_text_block_len_HEX, tex
           "In the text block of the updated file, " + Fore.CYAN + "{}".format(new_text_block_len_DEC-text_block_len_DEC) + Fore.GREEN + " characters were added" + Fore.RESET)
     input("\nTo continue, enter any character: ")
 
+#Displaying information about the analysed file
 def view_info(text_block_num, text_block_len_DEC, text_block_len_HEX):
     os.system('cls')
     titel("Done!")
@@ -199,6 +188,7 @@ def view_info(text_block_num, text_block_len_DEC, text_block_len_HEX):
           "Length of the text block DEC         " + Fore.CYAN + "{}\n".format(text_block_len_DEC) + Fore.RESET +
           "Length of the text block HEX         " + Fore.CYAN + "{}\n".format(text_block_len_HEX))
 
+#Function for displaying large text (art)
 def titel(str):
     print(Fore.GREEN + Style.BRIGHT)
     print(art.text2art(str))
@@ -224,7 +214,6 @@ def file_select():
     file_name = input("\nPlease select a file ")
     
     return menu[int(file_name)]
-
 
 if __name__ == '__main__':
     main()
