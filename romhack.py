@@ -5,10 +5,8 @@ from colorama import init
 from colorama import Fore, Back, Style
 def main():
     init()
-
-    print(Fore.GREEN + Style.BRIGHT)
-    art.tprint("Welcome!")
-    print(Style.RESET_ALL)
+    os.system('cls')
+    titel("Welcome!")
 
     file_name = file_select()
     #Таблиця для відступів від початку текстового блоку (адресів)
@@ -46,18 +44,18 @@ def main():
     #Кількість текстових блоків
     text_block_num = len(addresses)
 
-    print(Fore.GREEN +"\n\nThe file is analysed:\n"+ Fore.RESET +
-          "-----------------------\n"+
-          "Number of addresses in a text block  " + Fore.CYAN + "{}\n".format(text_block_num) + Fore.RESET +
-          "Length of the text block DEC         " + Fore.CYAN + "{}\n".format(text_block_len_DEC) + Fore.RESET +
-          "Length of the text block HEX         " + Fore.CYAN + "{}\n".format(text_block_len_HEX))
+    view_info(text_block_num, text_block_len_DEC, text_block_len_HEX)
 
     #Закриваєм проаналізований файл
     file.close()
 
     #Користувач вносить зміни в файл
         #TODO
+    if input("View text block content? y/n: ") == 'y':
+        file_view(file_name, addresses)
 
+    os.system('cls')
+    art.aprint("seal")
     print(Fore.GREEN + "\nYou can now make changes to the file. After making changes, enter ok")
     while i != 'ok':
         i = input()
@@ -101,13 +99,7 @@ def main():
     new_text_block_len_HEX = hex(offset)[2:4] + hex(offset)[4:]
     # print("Довжина текстового блоку в оновленому файлі HEX", new_text_block_len_HEX)
 
-    print(Fore.GREEN + "\n\nThe changes in the file have been analyzed:\n" + Fore.RESET +
-          "-----------------------\n"+
-          "Number of addresses in a text block  " + Fore.CYAN + "{}\n".format(count) + Fore.RESET +
-          "Length of the text block DEC         " + Fore.CYAN + "{}\n".format(new_text_block_len_DEC) + Fore.RESET +
-          "Length of the text block HEX         " + Fore.CYAN + "{}\n".format(new_text_block_len_HEX) + Fore.RESET +
-          "-----------------------\n" + Fore.GREEN +
-          "In the text block of the updated file, " + Fore.CYAN + "{}".format(new_text_block_len_DEC-text_block_len_DEC) + Fore.GREEN + " characters were added" + Fore.RESET)
+    view_updated_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC)
 
     #Читаєм файл повністю в пам'ять, для подальшої зміни
     file.seek(0)
@@ -161,10 +153,56 @@ def main():
         file.write(bytearray.fromhex(u))
         
     file.close()
-    
+    os.system('cls')
     print("\nTo exit the application, press the q key")
     while i != 'q':
         i = input()
+
+def file_view(file_name, addresses):
+    file = open(file_name, 'r', encoding='ISO-8859-1')
+    text_file = open("file_txt.txt", 'w', encoding="ISO-8859-1")
+    #Стаємо на початок текстового блоку
+
+    file.seek(34)
+
+    previous = 0
+    
+    for i in range(len(addresses)):
+        str = file.read(addresses[i][0] - previous)
+        previous = addresses[i][0]
+        text_file.write('[{}][{}]   '.format(addresses[i][0], i) + str[::2] + '\n')
+        print(Fore.GREEN + Style.BRIGHT + "[{}] ".format(i) + Style.RESET_ALL,str + '\n')
+
+    file.close()
+    text_file.close()
+
+    input("\nA file" + Fore.GREEN + Style.BRIGHT + " (file_txt.txt) " + Style.RESET_ALL + "was created with the contents of the text block.\nTo continue, enter any character: ")
+
+def view_updated_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC):
+    os.system('cls')
+    titel("Great!")
+    print(Fore.GREEN + "The changes in the file have been analyzed:\n" + Fore.RESET +
+          "-----------------------\n"+
+          "Number of addresses in a text block  " + Fore.CYAN + "{}\n".format(count) + Fore.RESET +
+          "Length of the text block DEC         " + Fore.CYAN + "{}\n".format(new_text_block_len_DEC) + Fore.RESET +
+          "Length of the text block HEX         " + Fore.CYAN + "{}\n".format(new_text_block_len_HEX) + Fore.RESET +
+          "-----------------------\n" + Fore.GREEN +
+          "In the text block of the updated file, " + Fore.CYAN + "{}".format(new_text_block_len_DEC-text_block_len_DEC) + Fore.GREEN + " characters were added" + Fore.RESET)
+    input("\nTo continue, enter any character: ")
+
+def view_info(text_block_num, text_block_len_DEC, text_block_len_HEX):
+    os.system('cls')
+    titel("Done!")
+    print(Fore.GREEN +"The file is analysed:\n"+ Fore.RESET +
+          "-----------------------\n"+
+          "Number of addresses in a text block  " + Fore.CYAN + "{}\n".format(text_block_num) + Fore.RESET +
+          "Length of the text block DEC         " + Fore.CYAN + "{}\n".format(text_block_len_DEC) + Fore.RESET +
+          "Length of the text block HEX         " + Fore.CYAN + "{}\n".format(text_block_len_HEX))
+
+def titel(str):
+    print(Fore.GREEN + Style.BRIGHT)
+    print(art.text2art(str))
+    print(Style.RESET_ALL)
 
 
 def file_select():
