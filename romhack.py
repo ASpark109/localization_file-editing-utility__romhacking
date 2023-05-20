@@ -50,18 +50,23 @@ def main():
     file.close()
 
     #If the user wants, we display the contents of the text block and write it to the file
-    if input("View text block content? y/n: ") == 'y':
-        file_view(file_name, addresses)
+    view = False
+    q = input("View text block content? y/n: ")
+    if q == 'y':
+        view = True
+    elif q == 'n':
+        view = False
+        
+    file_view(file_name, addresses, view)
 
     #The user makes changes to the file
     os.system('cls')
-    art.aprint("seal")
-    print(Fore.GREEN + "\nYou can now make changes to the file. After making changes, enter ok")
-    while i != 'ok':
-        i = input()
+    hexgenerator()
+
+    while input("Now you can put the generated" + Fore.GREEN + Style.BRIGHT + " hex " + Style.RESET_ALL + "values into the file. After that, click ok.\n") != 'ok': pass
 
     #Open the modified file for re-analysis
-    file = open('strings_EN.dat.game.bin', 'rb')
+    file = open(file_name, 'rb')
 
     #Go to the beginning of the text block
     file.seek(34)
@@ -114,7 +119,7 @@ def main():
 
 
     #Write an array with updated data to the file
-    file = open('strings1_EN.dat.game.bin', 'wb')
+    file = open('new_strings_EN.dat.game.bin', 'wb')
 
     u = None
     for i in range(504, 509):
@@ -145,10 +150,44 @@ def main():
     while i != 'q':
         i = input()
 
+def hexgenerator():
+    print(Fore.GREEN)
+    art.aprint("seal")
+    print(Style.RESET_ALL + "\nNow you can enter text and generate" + Fore.GREEN + Style.BRIGHT + " hex " + Style.RESET_ALL + "values. To exit, enter " + Fore.GREEN + Style.BRIGHT + "'uexit'" + Style.RESET_ALL)
+    print("All generated values will be written to the" + Fore.GREEN + Style.BRIGHT + " newhex.txt " + Style.RESET_ALL + "file.\n")
+
+    hex_file = open("newhex.txt", "w")
+
+    while True:
+
+        text = input("Your input:\n")
+
+        if text == "uexit": 
+            os.system('cls')
+            break
+
+        hex_file.write('\n\n' + text + '\n')
+
+        print(Fore.GREEN + Style.BRIGHT)
+
+        for item in text:
+            if ord(item) < 256:
+                item = '00' + hex(ord(item))[2:]
+            elif ord(item) < 4096:
+                item = '0' + hex(ord(item))[2:]
+            else:
+                item = hex(ord(item))[2:]
+
+            item = item[2:] + item[:2]
+            hex_file.write(item + " ")
+
+            print(item, end=' ')
+        print("\n" + Style.RESET_ALL)
+
 #Displaying the contents of a text block in the console and writing to a file
-def file_view(file_name, addresses):
+def file_view(file_name, addresses, pr):
     file = open(file_name, 'r', encoding='ISO-8859-1')
-    text_file = open("file_txt.txt", 'w', encoding="ISO-8859-1")
+    text_file = open("file_txt.txt", 'w', encoding="utf-16")
 
     file.seek(34)
 
@@ -158,12 +197,14 @@ def file_view(file_name, addresses):
         str = file.read(addresses[i][0] - previous)
         previous = addresses[i][0]
         text_file.write('[{}][{}]   '.format(addresses[i][0], i) + str[::2] + '\n')
-        print(Fore.GREEN + Style.BRIGHT + "[{}] ".format(i) + Style.RESET_ALL,str + '\n')
+        
+        if pr:
+            print(Fore.GREEN + Style.BRIGHT + "[{}] ".format(i) + Style.RESET_ALL,str + '\n')
 
     file.close()
     text_file.close()
 
-    input("\nA file" + Fore.GREEN + Style.BRIGHT + " (file_txt.txt) " + Style.RESET_ALL + "was created with the contents of the text block.\nTo continue, enter any character: ")
+    input(Style.RESET_ALL + "\nA file" + Fore.GREEN + Style.BRIGHT + " (file_txt.txt) " + Style.RESET_ALL + "was created with the contents of the text block.\nTo continue, enter any character: ")
 
 #Display information about the updated file
 def view_updated_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC):
