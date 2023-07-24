@@ -3,6 +3,7 @@ import os
 from colorama import init
 
 from colorama import Fore, Back, Style
+
 def main():
     init()
     os.system('cls')
@@ -186,21 +187,36 @@ def hexgenerator():
 
 #Displaying the contents of a text block in the console and writing to a file
 def file_view(file_name, addresses, pr):
-    file = open(file_name, 'r', encoding='ISO-8859-1')
+
+    # for item in addresses:
+    #     print(item)
+    # file = open(file_name, 'r', encoding='utf-16le')
+    file = open(file_name, 'rb')
     text_file = open("file_txt.txt", 'w', encoding="utf-16")
 
     file.seek(34)
-
-    previous = 0
+    prev = 0
     
+
     for i in range(len(addresses)):
-        str = file.read(addresses[i][0] - previous)
-        previous = addresses[i][0]
-        text_file.write('[{}][{}]   '.format(addresses[i][0], i) + str[::2] + '\n')
+        file.seek(prev + 34)
+        a = file.read(addresses[i][0] - prev).decode('utf-16-le')
+        prev = addresses[i][0]
+        print('[{}]'.format(i), addresses[i][0])
+        text_file.write('[{}]'.format(i) + a + '\n')
+    # previous = 0
+    
+    # e = 0
+   
+    # print(e/2)
+    # for i in range(10):
+    #     e += int((addresses[i][0] - previous)/2)
+    #     print(e)
+    #     str = file.read(int((addresses[i][0] - previous)/2))
+    #     print(str)
         
         if pr:
             print(Fore.GREEN + Style.BRIGHT + "[{}] ".format(i) + Style.RESET_ALL,str + '\n')
-
     file.close()
     text_file.close()
 
@@ -255,6 +271,39 @@ def file_select():
     file_name = input("\nPlease select a file ")
     
     return menu[int(file_name)]
+
+def text_file_analyse(file):
+    text_file = open(file, 'w', encoding="utf-16")
+
+    str = ''
+
+    new_add = []
+    while True:
+        a = text_file.read(1)
+        
+        if a == '':
+            break
+
+        if 0 == ord(a):
+            l = len(str) - str.find("]", 0, 7) 
+            str = ''
+            new_add.append(l*2)
+
+        str += a
+    
+    return new_add
+
+def new_addresess_definition(add, file_name):
+    file = open(file_name, 'rb')
+
+    #Read the length of the text block (2 bytes)
+    file.seek(22)
+    u = file.read(2)
+    text_block_len_HEX = hex(u[1])[2:] + hex(u[0])[2:]
+    text_block_len_DEC = int(text_block_len_HEX, 16)
+
+    del u[34, 34 + text_block_len_DEC]
+
 
 if __name__ == '__main__':
     main()
