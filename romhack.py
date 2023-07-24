@@ -215,8 +215,12 @@ def file_view(file_name, addresses, pr):
     #     str = file.read(int((addresses[i][0] - previous)/2))
     #     print(str)
         
-        if pr:
-            print(Fore.GREEN + Style.BRIGHT + "[{}] ".format(i) + Style.RESET_ALL,str + '\n')
+    #     previous = addresses[i][0]
+    #     text_file.write('[{}][{}]   '.format(addresses[i][0], i) + str + '\n')
+        
+    #     # if pr:
+    #     #     print(Fore.GREEN + Style.BRIGHT + "[{}] ".format(i) + Style.RESET_ALL,str + '\n')
+    
     file.close()
     text_file.close()
 
