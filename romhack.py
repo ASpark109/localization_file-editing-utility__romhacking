@@ -60,11 +60,15 @@ def main():
         
     file_view(file_name, addresses, view)
 
+    
+
     #The user makes changes to the file
     os.system('cls')
     hexgenerator()
 
     while input("Now you can put the generated" + Fore.GREEN + Style.BRIGHT + " hex " + Style.RESET_ALL + "values into the file. After that, click ok.\n") != 'ok': pass
+
+    text_file_analyse("file_txt.txt", file_name, text_block_len_DEC)
 
     #Open the modified file for re-analysis
     file = open(file_name, 'rb')
@@ -202,25 +206,8 @@ def file_view(file_name, addresses, pr):
         file.seek(prev + 34)
         a = file.read(addresses[i][0] - prev).decode('utf-16-le')
         prev = addresses[i][0]
-        print('[{}]'.format(i), addresses[i][0])
         text_file.write('[{}]'.format(i) + a + '\n')
-    # previous = 0
-    
-    # e = 0
-   
-    # print(e/2)
-    # for i in range(10):
-    #     e += int((addresses[i][0] - previous)/2)
-    #     print(e)
-    #     str = file.read(int((addresses[i][0] - previous)/2))
-    #     print(str)
-        
-    #     previous = addresses[i][0]
-    #     text_file.write('[{}][{}]   '.format(addresses[i][0], i) + str + '\n')
-        
-    #     # if pr:
-    #     #     print(Fore.GREEN + Style.BRIGHT + "[{}] ".format(i) + Style.RESET_ALL,str + '\n')
-    
+
     file.close()
     text_file.close()
 
@@ -276,12 +263,15 @@ def file_select():
     
     return menu[int(file_name)]
 
-def text_file_analyse(file):
-    text_file = open(file, 'w', encoding="utf-16")
-
+def text_file_analyse(file, bnfile, length):
+    text_file = open(file, 'r', encoding="utf-16")
+    
     str = ''
 
     new_add = []
+    new_text_block = ''
+    res = ''
+
     while True:
         a = text_file.read(1)
         
@@ -289,24 +279,67 @@ def text_file_analyse(file):
             break
 
         if 0 == ord(a):
-            l = len(str) - str.find("]", 0, 7) 
+            pref = str.find("]", 0, 7)
+            l = len(str) - pref
+            str = str[pref+1:len(str)]
+            # print("|" + str + "|", len(str))
+            
+            for s in str:
+                u = hex(ord(s))[2:]
+
+                if len(u) == 3:
+                    u = u[1:] + "0" + u[:1]
+                elif len(u) == 2:
+                    u = u + "00"
+                elif len(u) == 1:
+                    u = u + "000"
+
+                res += u
+
+            res += "0000"
+            new_text_block += res
+            print(str)
             str = ''
+            res = ''
             new_add.append(l*2)
 
         str += a
-    
+
+    # print(new_text_block)    
+    file1 = open("tes.b.write.bin", 'wb')
+
+    file1.write(bytearray.fromhex(new_text_block))
+
+    bfile = open(bnfile, 'rb')
+
+
+    data = list(bfile.read())
+
+    bfile.close()
+
+    bfile = open(bnfile, 'wb')
+
+    del data[34, 34 + length]
+
+    bfile.write(bytes(data))
+
+    bfile.seek(22)
+    bfile.write(bytearray.fromhex(new_text_block))
+    bfile.close()
+    file1.close()
+
     return new_add
 
-def new_addresess_definition(add, file_name):
-    file = open(file_name, 'rb')
+# def new_addresess_definition(add, file_name):
+#     file = open(file_name, 'rb')
 
-    #Read the length of the text block (2 bytes)
-    file.seek(22)
-    u = file.read(2)
-    text_block_len_HEX = hex(u[1])[2:] + hex(u[0])[2:]
-    text_block_len_DEC = int(text_block_len_HEX, 16)
+#     #Read the length of the text block (2 bytes)
+#     file.seek(22)
+#     u = file.read(2)
+#     text_block_len_HEX = hex(u[1])[2:] + hex(u[0])[2:]
+#     text_block_len_DEC = int(text_block_len_HEX, 16)
 
-    del u[34, 34 + text_block_len_DEC]
+#     del u[34, 34 + text_block_len_DEC]
 
 
 if __name__ == '__main__':
