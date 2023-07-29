@@ -50,6 +50,9 @@ def main():
     #Close the analysed file
     file.close()
 
+
+
+
     #If the user wants, we display the contents of the text block and write it to the file
     view = False
     q = input("View text block content? y/n: ")
@@ -60,15 +63,17 @@ def main():
         
     file_view(file_name, addresses, view)
 
-    
-
     #The user makes changes to the file
     os.system('cls')
-    hexgenerator()
+    # hexgenerator()
 
     while input("Now you can put the generated" + Fore.GREEN + Style.BRIGHT + " hex " + Style.RESET_ALL + "values into the file. After that, click ok.\n") != 'ok': pass
 
     text_file_analyse("file_txt.txt", file_name, text_block_len_DEC)
+
+    print("END")
+    
+    # return 0
 
     #Open the modified file for re-analysis
     file = open(file_name, 'rb')
@@ -124,7 +129,7 @@ def main():
 
 
     #Write an array with updated data to the file
-    file = open('new_strings_EN.dat.game.bin', 'wb')
+    file = open(file_name, 'wb')
 
     u = None
     for i in range(504, 509):
@@ -215,7 +220,7 @@ def file_view(file_name, addresses, pr):
 
 #Display information about the updated file
 def view_updated_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC):
-    os.system('cls')
+    # os.system('cls')
     titel("Great!")
     print(Fore.GREEN + "The changes in the file have been analyzed:\n" + Fore.RESET +
           "-----------------------\n"+
@@ -265,12 +270,15 @@ def file_select():
 
 def text_file_analyse(file, bnfile, length):
     text_file = open(file, 'r', encoding="utf-16")
+    # text_file = open(file, 'br')
     
     str = ''
 
     new_add = []
     new_text_block = ''
     res = ''
+
+    count = 0
 
     while True:
         a = text_file.read(1)
@@ -284,6 +292,8 @@ def text_file_analyse(file, bnfile, length):
             str = str[pref+1:len(str)]
             # print("|" + str + "|", len(str))
             
+
+
             for s in str:
                 u = hex(ord(s))[2:]
 
@@ -294,52 +304,62 @@ def text_file_analyse(file, bnfile, length):
                 elif len(u) == 1:
                     u = u + "000"
 
+                if count == 6:
+                    print(s, " ", u)
+
                 res += u
 
             res += "0000"
             new_text_block += res
-            print(str)
+                # print(res)
+            # print(count, " >----------------------<")
             str = ''
             res = ''
             new_add.append(l*2)
+            count += 1
 
         str += a
+        
+    print(count)
 
+    text_file.close()
     # print(new_text_block)    
-    file1 = open("tes.b.write.bin", 'wb')
+    # file1 = open("tes.b.write.bin", 'wb')
 
-    file1.write(bytearray.fromhex(new_text_block))
+    # file1.write(bytearray.fromhex(new_text_block))
 
     bfile = open(bnfile, 'rb')
 
 
     data = list(bfile.read())
 
+    footer = data[:]
+
+    print(len(data))
+
+    del data[34: 34 + length]
+
+    header = data[:34]
+    footer = data[34:]
+
+
+    print(len(header),"<")
+    print(len(footer),"<<")
+    print(len(data))
+
     bfile.close()
 
     bfile = open(bnfile, 'wb')
 
-    del data[34, 34 + length]
+    
 
-    bfile.write(bytes(data))
-
-    bfile.seek(22)
+    bfile.write(bytes(header))
     bfile.write(bytearray.fromhex(new_text_block))
+    bfile.write(bytes(footer))
+
     bfile.close()
-    file1.close()
 
     return new_add
-
-# def new_addresess_definition(add, file_name):
-#     file = open(file_name, 'rb')
-
-#     #Read the length of the text block (2 bytes)
-#     file.seek(22)
-#     u = file.read(2)
-#     text_block_len_HEX = hex(u[1])[2:] + hex(u[0])[2:]
-#     text_block_len_DEC = int(text_block_len_HEX, 16)
-
-#     del u[34, 34 + text_block_len_DEC]
 
 
 if __name__ == '__main__':
