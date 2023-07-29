@@ -68,10 +68,10 @@ def main():
     # hexgenerator()
 
     while input("Now you can put the generated" + Fore.GREEN + Style.BRIGHT + " hex " + Style.RESET_ALL + "values into the file. After that, click ok.\n") != 'ok': pass
+    
+    print("HERE")
 
     text_file_analyse("file_txt.txt", file_name, text_block_len_DEC)
-
-    print("END")
     
     # return 0
 
@@ -213,9 +213,9 @@ def file_view(file_name, addresses, pr):
         prev = addresses[i][0]
         text_file.write('[{}]'.format(i) + a + '\n')
 
-    file.close()
     text_file.close()
-
+    file.close()
+    
     input(Style.RESET_ALL + "\nA file" + Fore.GREEN + Style.BRIGHT + " (file_txt.txt) " + Style.RESET_ALL + "was created with the contents of the text block.\nTo continue, enter any character: ")
 
 #Display information about the updated file
@@ -269,9 +269,10 @@ def file_select():
     return menu[int(file_name)]
 
 def text_file_analyse(file, bnfile, length):
-    text_file = open(file, 'r', encoding="utf-16")
-    # text_file = open(file, 'br')
-    
+    # text_file = open(file, 'r', encoding="utf-16")
+    print("HERE1")
+    text_file = open(file, 'br')
+    print("HERE2")
     str = ''
 
     new_add = []
@@ -280,46 +281,23 @@ def text_file_analyse(file, bnfile, length):
 
     count = 0
 
+    text_file.read(2)
+
     while True:
-        a = text_file.read(1)
-        
-        if a == '':
+        while text_file.read(2).hex() != "5d00":
+            pass
+        while True:
+            str = text_file.read(2).hex()
+            print(str)
+            if str != "0d00":
+                res += str
+            if str == "0000":
+                count += 1
+                break
+        if count == 410:
             break
 
-        if 0 == ord(a):
-            pref = str.find("]", 0, 7)
-            l = len(str) - pref
-            str = str[pref+1:len(str)]
-            # print("|" + str + "|", len(str))
-            
-
-
-            for s in str:
-                u = hex(ord(s))[2:]
-
-                if len(u) == 3:
-                    u = u[1:] + "0" + u[:1]
-                elif len(u) == 2:
-                    u = u + "00"
-                elif len(u) == 1:
-                    u = u + "000"
-
-                if count == 6:
-                    print(s, " ", u)
-
-                res += u
-
-            res += "0000"
-            new_text_block += res
-                # print(res)
-            # print(count, " >----------------------<")
-            str = ''
-            res = ''
-            new_add.append(l*2)
-            count += 1
-
-        str += a
-        
+    # print(res)
     print(count)
 
     text_file.close()
@@ -333,7 +311,7 @@ def text_file_analyse(file, bnfile, length):
 
     data = list(bfile.read())
 
-    footer = data[:]
+    # footer = data[:]
 
     print(len(data))
 
@@ -343,9 +321,9 @@ def text_file_analyse(file, bnfile, length):
     footer = data[34:]
 
 
-    print(len(header),"<")
-    print(len(footer),"<<")
-    print(len(data))
+    # print(len(header),"<")
+    # print(len(footer),"<<")
+    # print(len(data))
 
     bfile.close()
 
@@ -354,7 +332,7 @@ def text_file_analyse(file, bnfile, length):
     
 
     bfile.write(bytes(header))
-    bfile.write(bytearray.fromhex(new_text_block))
+    bfile.write(bytearray.fromhex(res))
     bfile.write(bytes(footer))
 
     bfile.close()
