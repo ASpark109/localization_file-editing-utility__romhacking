@@ -10,6 +10,7 @@ def main():
     titel("Welcome!")
 
     file_name = file_select()
+    content_file_name = "file_txt.txt"
     #Table for indentation from the beginning of a text block (address table)
     addresses = []
 
@@ -45,36 +46,18 @@ def main():
     #Number of text blocks
     text_block_num = len(addresses)
 
-    view_info(text_block_num, text_block_len_DEC, text_block_len_HEX)
+    file_info(text_block_num, text_block_len_DEC, text_block_len_HEX)
 
     #Close the analysed file
     file.close()
-
-
-
-
-    #If the user wants, we display the contents of the text block and write it to the file
-    view = False
-    q = input("View text block content? y/n: ")
-    if q == 'y':
-        view = True
-    elif q == 'n':
-        view = False
-        
-    file_view(file_name, addresses, view)
+  
+    content_file_create(file_name, addresses, content_file_name)
 
     #The user makes changes to the file
     os.system('cls')
-    # hexgenerator()
 
-    while input("Now you can put the generated" + Fore.GREEN + Style.BRIGHT + " hex " + Style.RESET_ALL + "values into the file. After that, click ok.\n") != 'ok': pass
+    text_block_replace(content_file_name, file_name, text_block_len_DEC)
     
-    print("HERE")
-
-    text_file_analyse("file_txt.txt", file_name, text_block_len_DEC)
-    
-    # return 0
-
     #Open the modified file for re-analysis
     file = open(file_name, 'rb')
 
@@ -107,7 +90,7 @@ def main():
     new_text_block_len_HEX = hex(offset)[2:4] + hex(offset)[4:]
 
     #View updated information
-    view_updated_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC)
+    updated_file_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC)
 
     #Read the entire file into memory for further modification
     file.seek(0)
@@ -127,81 +110,19 @@ def main():
         file_snapshot[pointer + 2] = int(updated_addresses[i][1][2:], 16)
         pointer += 8
 
+    file.close()
 
     #Write an array with updated data to the file
     file = open(file_name, 'wb')
 
-    u = None
-    for i in range(504, 509):
-        f =  hex(file_snapshot[i])[2:]
-        if(file_snapshot[i] < 16):
-            f  = '0' + f
-
-    q = 0
-    for point in range(len(file_snapshot)):
-        q+=1
-        u = hex(file_snapshot[point])[2:]
-
-        if(file_snapshot[point] < 16):
-            u  = '0' + u
-        
-        test = u
-        if(q == 16):
-            q = 0
-            test += '\n'
-        else:
-            test += ' '
-
-        file.write(bytearray.fromhex(u))
+    file.write(bytes(file_snapshot))
         
     file.close()
-    os.system('cls')
-    print("\nTo exit the application, press the q key")
-    while i != 'q':
-        i = input()
-
-def hexgenerator():
-    print(Fore.GREEN)
-    art.aprint("seal")
-    print(Style.RESET_ALL + "\nNow you can enter text and generate" + Fore.GREEN + Style.BRIGHT + " hex " + Style.RESET_ALL + "values. To exit, enter " + Fore.GREEN + Style.BRIGHT + "'uexit'" + Style.RESET_ALL)
-    print("All generated values will be written to the" + Fore.GREEN + Style.BRIGHT + " newhex.txt " + Style.RESET_ALL + "file.\n")
-
-    hex_file = open("newhex.txt", "w")
-
-    while True:
-
-        text = input("Your input:\n")
-
-        if text == "uexit": 
-            os.system('cls')
-            break
-
-        hex_file.write('\n\n' + text + '\n')
-
-        print(Fore.GREEN + Style.BRIGHT)
-
-        for item in text:
-            if ord(item) < 256:
-                item = '00' + hex(ord(item))[2:]
-            elif ord(item) < 4096:
-                item = '0' + hex(ord(item))[2:]
-            else:
-                item = hex(ord(item))[2:]
-
-            item = item[2:] + item[:2]
-            hex_file.write(item + " ")
-
-            print(item, end=' ')
-        print("\n" + Style.RESET_ALL)
 
 #Displaying the contents of a text block in the console and writing to a file
-def file_view(file_name, addresses, pr):
-
-    # for item in addresses:
-    #     print(item)
-    # file = open(file_name, 'r', encoding='utf-16le')
+def content_file_create(file_name, addresses, content_file_name):
     file = open(file_name, 'rb')
-    text_file = open("file_txt.txt", 'w', encoding="utf-16")
+    text_file = open(content_file_name, 'w', encoding="utf-16")
 
     file.seek(34)
     prev = 0
@@ -216,11 +137,10 @@ def file_view(file_name, addresses, pr):
     text_file.close()
     file.close()
     
-    input(Style.RESET_ALL + "\nA file" + Fore.GREEN + Style.BRIGHT + " (file_txt.txt) " + Style.RESET_ALL + "was created with the contents of the text block.\nTo continue, enter any character: ")
+    while input(Style.RESET_ALL + "\nA file" + Fore.GREEN + Style.BRIGHT + " (" + content_file_name + ") " + Style.RESET_ALL + "was created with the contents of the text block.\nNow you can make changes to this text file, type" + Fore.GREEN + Style.BRIGHT + " ok "  + Style.RESET_ALL + "at the end: ") != "ok": pass
 
 #Display information about the updated file
-def view_updated_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC):
-    # os.system('cls')
+def updated_file_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC):
     titel("Great!")
     print(Fore.GREEN + "The changes in the file have been analyzed:\n" + Fore.RESET +
           "-----------------------\n"+
@@ -228,11 +148,10 @@ def view_updated_info(count, new_text_block_len_DEC, new_text_block_len_HEX, tex
           "Length of the text block DEC         " + Fore.CYAN + "{}\n".format(new_text_block_len_DEC) + Fore.RESET +
           "Length of the text block HEX         " + Fore.CYAN + "{}\n".format(new_text_block_len_HEX) + Fore.RESET +
           "-----------------------\n" + Fore.GREEN +
-          "In the text block of the updated file, " + Fore.CYAN + "{}".format(new_text_block_len_DEC-text_block_len_DEC) + Fore.GREEN + " characters were added" + Fore.RESET)
-    input("\nTo continue, enter any character: ")
+          "In the text block of the updated file, " + Fore.CYAN + "{}".format(new_text_block_len_DEC-text_block_len_DEC) + Fore.GREEN + " characters were added\n\n\n" + Fore.RESET)
 
 #Displaying information about the analysed file
-def view_info(text_block_num, text_block_len_DEC, text_block_len_HEX):
+def file_info(text_block_num, text_block_len_DEC, text_block_len_HEX):
     os.system('cls')
     titel("Done!")
     print(Fore.GREEN +"The file is analysed:\n"+ Fore.RESET +
@@ -246,7 +165,6 @@ def titel(str):
     print(Fore.GREEN + Style.BRIGHT)
     print(art.text2art(str))
     print(Style.RESET_ALL)
-
 
 def file_select():
     # folder path
@@ -268,27 +186,25 @@ def file_select():
     
     return menu[int(file_name)]
 
-def text_file_analyse(file, bnfile, length):
-    # text_file = open(file, 'r', encoding="utf-16")
-    print("HERE1")
-    text_file = open(file, 'br')
-    print("HERE2")
-    str = ''
+def text_block_replace(file, bnfile, length):
 
-    new_add = []
-    new_text_block = ''
+    #Open a text file
+    text_file = open(file, 'br')
+    str = ''
     res = ''
 
     count = 0
 
+    #Skip the text file header
     text_file.read(2)
 
+    #Reading text
     while True:
         while text_file.read(2).hex() != "5d00":
             pass
         while True:
             str = text_file.read(2).hex()
-            print(str)
+            
             if str != "0d00":
                 res += str
             if str == "0000":
@@ -297,48 +213,32 @@ def text_file_analyse(file, bnfile, length):
         if count == 410:
             break
 
-    # print(res)
-    print(count)
-
     text_file.close()
-    # print(new_text_block)    
-    # file1 = open("tes.b.write.bin", 'wb')
 
-    # file1.write(bytearray.fromhex(new_text_block))
-
+    #Open the main (you can create a copy) binary file in bitwise mode
     bfile = open(bnfile, 'rb')
 
-
+    #Reading the data
     data = list(bfile.read())
 
-    # footer = data[:]
-
-    print(len(data))
-
+    #Delete the text block
     del data[34: 34 + length]
 
+    #Divide the content into header and footer (parts that come before and after the text block)
     header = data[:34]
     footer = data[34:]
 
-
-    # print(len(header),"<")
-    # print(len(footer),"<<")
-    # print(len(data))
-
     bfile.close()
 
+    #Open a file in bitwise writing mode
     bfile = open(bnfile, 'wb')
 
-    
-
+    #Create a file from a header, an updated text block, and a footer
     bfile.write(bytes(header))
     bfile.write(bytearray.fromhex(res))
     bfile.write(bytes(footer))
 
     bfile.close()
-
-    return new_add
-
 
 if __name__ == '__main__':
     main()
