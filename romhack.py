@@ -58,6 +58,9 @@ def main():
 
     text_block_replace(content_file_name, file_name, text_block_len_DEC)
     
+    file_analysing_and_adresses_overwriting(file_name, text_block_num, text_block_len_DEC)
+
+def file_analysing_and_adresses_overwriting(file_name, text_block_num, text_block_len_DEC):
     #Open the modified file for re-analysis
     file = open(file_name, 'rb')
 
@@ -137,7 +140,8 @@ def content_file_create(file_name, addresses, content_file_name):
     text_file.close()
     file.close()
     
-    while input(Style.RESET_ALL + "\nA file" + Fore.GREEN + Style.BRIGHT + " (" + content_file_name + ") " + Style.RESET_ALL + "was created with the contents of the text block.\nNow you can make changes to this text file, type" + Fore.GREEN + Style.BRIGHT + " ok "  + Style.RESET_ALL + "at the end: ") != "ok": pass
+    while input(Style.RESET_ALL + "\nA file" + Fore.GREEN + Style.BRIGHT + " (" + content_file_name + ") " + Style.RESET_ALL + 
+        "was created with the contents of the text block.\nNow you can make changes to this text file. Please use a Notepad++ to make changes.\n\nType" + Fore.GREEN + Style.BRIGHT + " ok "  + Style.RESET_ALL + "at the end: ") != "ok": pass
 
 #Display information about the updated file
 def updated_file_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC):
