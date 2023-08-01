@@ -163,7 +163,7 @@ def updated_file_info(count, new_text_block_len_DEC, new_text_block_len_HEX, tex
 #Displaying information about the analysed file
 def file_info(text_block_num, text_block_len_DEC, text_block_len_HEX):
     os.system('cls')
-    titel("\tDone!")
+    titel(" Done!")
     print(Fore.GREEN +" The file is analysed:\n"+ Fore.RESET +
           " -----------------------\n"+
           " Number of addresses in a text block  " + Fore.CYAN + "{}\n".format(text_block_num) + Fore.RESET +
@@ -261,7 +261,7 @@ def author():
             date = str(datetime.fromtimestamp(os.path.getmtime("romhack.py"))) + "   (version in development)"
             break
         if item == main_file_name + ".exe":
-            date = str(datetime.fromtimestamp(os.path.getctime("romhack.py"))) + "   (release version)"
+            date = str(datetime.fromtimestamp(os.path.getctime("romhack.exe"))) + "   (release version)"
             break
 
     print(Fore.GREEN + 
