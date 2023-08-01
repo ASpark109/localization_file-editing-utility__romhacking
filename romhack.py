@@ -1,13 +1,15 @@
 import art
 import os
 from colorama import init
+from datetime import datetime
 
 from colorama import Fore, Back, Style
 
 def main():
     init()
     os.system('cls')
-    titel("Welcome!")
+    author()
+    titel(" Welcome!")
 
     file_name = file_select()
     content_file_name = "file_txt.txt"
@@ -122,6 +124,8 @@ def file_analysing_and_adresses_overwriting(file_name, text_block_num, text_bloc
         
     file.close()
 
+    input(" To exit, enter any character: ")
+
 #Displaying the contents of a text block in the console and writing to a file
 def content_file_create(file_name, addresses, content_file_name):
     file = open(file_name, 'rb')
@@ -140,29 +144,32 @@ def content_file_create(file_name, addresses, content_file_name):
     text_file.close()
     file.close()
     
-    while input(Style.RESET_ALL + "\nA file" + Fore.GREEN + Style.BRIGHT + " (" + content_file_name + ") " + Style.RESET_ALL + 
-        "was created with the contents of the text block.\nNow you can make changes to this text file. Please use a Notepad++ to make changes.\n\nType" + Fore.GREEN + Style.BRIGHT + " ok "  + Style.RESET_ALL + "at the end: ") != "ok": pass
+    print(Style.RESET_ALL + "\n A file" + Fore.GREEN + Style.BRIGHT + " (" + content_file_name + ") " + Style.RESET_ALL + 
+        "was created with the contents of the text block.\n Now you can make changes to this text file. Please use a " + Fore.GREEN + Style.BRIGHT + "Notepad++" + Style.RESET_ALL + " to make changes.\n\n Type" + Fore.GREEN + Style.BRIGHT + " ok "  + Style.RESET_ALL + "at the end:", end="")
+
+    while input(" ") != "ok": pass
 
 #Display information about the updated file
 def updated_file_info(count, new_text_block_len_DEC, new_text_block_len_HEX, text_block_len_DEC):
-    titel("Great!")
-    print(Fore.GREEN + "The changes in the file have been analyzed:\n" + Fore.RESET +
-          "-----------------------\n"+
-          "Number of addresses in a text block  " + Fore.CYAN + "{}\n".format(count) + Fore.RESET +
-          "Length of the text block DEC         " + Fore.CYAN + "{}\n".format(new_text_block_len_DEC) + Fore.RESET +
-          "Length of the text block HEX         " + Fore.CYAN + "{}\n".format(new_text_block_len_HEX) + Fore.RESET +
-          "-----------------------\n" + Fore.GREEN +
-          "In the text block of the updated file, " + Fore.CYAN + "{}".format(new_text_block_len_DEC-text_block_len_DEC) + Fore.GREEN + " characters were added\n\n\n" + Fore.RESET)
+    titel(" Great!")
+    print(Fore.GREEN + " The changes in the file have been analyzed:\n" + Fore.RESET +
+          " -----------------------\n"+
+          " Number of addresses in a text block  " + Fore.CYAN + "{}\n".format(count) + Fore.RESET +
+          " Length of the text block DEC         " + Fore.CYAN + "{}\n".format(new_text_block_len_DEC) + Fore.RESET +
+          " Length of the text block HEX         " + Fore.CYAN + "{}\n".format(new_text_block_len_HEX) + Fore.RESET +
+          " -----------------------\n" + Fore.GREEN +
+          " In the text block of the updated file, " + Fore.CYAN + "{}".format(round((new_text_block_len_DEC-text_block_len_DEC)/2)) + Fore.GREEN + " characters were added\n\n\n" + Fore.RESET)
 
 #Displaying information about the analysed file
 def file_info(text_block_num, text_block_len_DEC, text_block_len_HEX):
     os.system('cls')
-    titel("Done!")
-    print(Fore.GREEN +"The file is analysed:\n"+ Fore.RESET +
-          "-----------------------\n"+
-          "Number of addresses in a text block  " + Fore.CYAN + "{}\n".format(text_block_num) + Fore.RESET +
-          "Length of the text block DEC         " + Fore.CYAN + "{}\n".format(text_block_len_DEC) + Fore.RESET +
-          "Length of the text block HEX         " + Fore.CYAN + "{}\n".format(text_block_len_HEX))
+    titel("\tDone!")
+    print(Fore.GREEN +" The file is analysed:\n"+ Fore.RESET +
+          " -----------------------\n"+
+          " Number of addresses in a text block  " + Fore.CYAN + "{}\n".format(text_block_num) + Fore.RESET +
+          " Length of the text block DEC         " + Fore.CYAN + "{}\n".format(text_block_len_DEC) + Fore.RESET +
+          " Length of the text block HEX         " + Fore.CYAN + "{}\n".format(text_block_len_HEX) + Fore.RESET +
+          " -----------------------\n")
 
 #Function for displaying large text (art)
 def titel(str):
@@ -184,9 +191,9 @@ def file_select():
             menu.append(path)
 
     for i in range(len(menu)):
-        print(Fore.YELLOW + "[{}] {}".format(i, menu[i]) + Fore.RESET)
+        print(Fore.YELLOW + " [{}] {}".format(i, menu[i]) + Fore.RESET)
     
-    file_name = input("\nPlease select a file ")
+    file_name = input("\n Please select a file ")
     
     return menu[int(file_name)]
 
@@ -243,6 +250,31 @@ def text_block_replace(file, bnfile, length):
     bfile.write(bytes(footer))
 
     bfile.close()
+
+def author():
+
+    main_file_name = "romhack"
+    date = ""
+
+    for item in os.listdir(r'.\\'):
+        if item == main_file_name + ".py":
+            date = str(datetime.fromtimestamp(os.path.getmtime("romhack.py"))) + "   (version in development)"
+            break
+        if item == main_file_name + ".exe":
+            date = str(datetime.fromtimestamp(os.path.getctime("romhack.py"))) + "   (release version)"
+            break
+
+    print(Fore.GREEN + 
+          " --------------------------------------\n" +
+          " Authors: Liubomyr Kulka, Yurii Oliinyk\n" +
+          " Source: https://github.com/ASpark109/localization_file-editing-utility__romhacking.git\n" +
+          " Last update: ", date,"\n\n" +
+          " This utility was created for the Soul Bubble game,\n and the software is completely open source and available for use by anyone.\n If you have any suggestions for the software, you can contribute to the repository.\n\n" +
+          " Thanks! ", end="")
+    art.aprint("seal")
+
+    print(" --------------------------------------\n" + Fore.RESET)
+          
 
 if __name__ == '__main__':
     main()
