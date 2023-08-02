@@ -162,7 +162,6 @@ def updated_file_info(count, new_text_block_len_DEC, new_text_block_len_HEX, tex
 
 #Displaying information about the analysed file
 def file_info(text_block_num, text_block_len_DEC, text_block_len_HEX):
-    os.system('cls')
     titel(" Done!")
     print(Fore.GREEN +" The file is analysed:\n"+ Fore.RESET +
           " -----------------------\n"+
@@ -178,24 +177,35 @@ def titel(str):
     print(Style.RESET_ALL)
 
 def file_select():
-    # folder path
-    dir_path = r'.\\'
+    while True:
+        # folder path
+        dir_path = r'.\\'
 
-    # list to store files
-    menu = []
+        # list to store files
+        menu = []
+        file_name = ""
 
-    # Iterate directory
-    for path in os.listdir(dir_path):
-        # check if current path is a file
-        if os.path.isfile(os.path.join(dir_path, path)):
-            menu.append(path)
+        # Iterate directory
+        for path in os.listdir(dir_path):
+            # check if current path is a file
+            if os.path.isfile(os.path.join(dir_path, path)):
+                menu.append(path)
 
-    for i in range(len(menu)):
-        print(Fore.YELLOW + " [{}] {}".format(i, menu[i]) + Fore.RESET)
-    
-    file_name = input("\n Please select a file ")
-    
-    return menu[int(file_name)]
+        for i in range(len(menu)):
+            print(Fore.YELLOW + " [{}] {}".format(i, menu[i]) + Fore.RESET)
+        
+        file_name = input("\n Please select a file ")
+        
+        file = open(menu[int(file_name)], "rb")
+        c = file.read(16).hex()
+        file.close()
+
+        if c == "07000000090000004c43535402000000":
+            os.system('cls')
+            return menu[int(file_name)]
+        else:
+            os.system('cls')
+            print(Fore.GREEN + " We're sorry, an error has occurred. The file you selected cannot be processed. You may have made a mistake, please try again\n" + Fore.RESET)
 
 def text_block_replace(file, bnfile, length):
 
