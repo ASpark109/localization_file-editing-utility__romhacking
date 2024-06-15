@@ -197,10 +197,10 @@ def file_select():
         file_name = input("\n Please select a file ")
         
         file = open(menu[int(file_name)], "rb")
-        c = file.read(16).hex()
+        c = file.read(14).hex()
         file.close()
 
-        if c == "07000000090000004c43535402000000":
+        if c == "07000000090000004c4353540200":
             os.system('cls')
             return menu[int(file_name)]
         else:
